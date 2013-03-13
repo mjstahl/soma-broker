@@ -22,10 +22,26 @@ import (
 
 const projLen = len("/project/")
 
-func lookupProjName(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "Requesting project #%s", r.URL.Path[projLen:])
+func HandleProjRequest(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		// POST /project/<project name> (body will contain JSON text)
+		// 409 Conflict - if the project name already exists (only 1 project by name right now)
+		// 201 Created  - if the project name and body was accepted by the broker
+		//
+		fmt.Fprintf(w, "Received POST request. This should return a 409 on failure, or a 201 on success.")
+	case "GET":
+		// GET /project/<project name>
+		// Performed by a dicourse runtime starting up and loading a manifest
+		// 200 OK - return a JSON body containing the peer supporting this project
+		// 404 Not Found - If the project requested doesn't exist
+		//
+		fmt.Fprintf(w, "Received GET request. This should return a 404 on failure, or a 200 on success.")
+	default:
+		// 404 Not Found
+	}
 }
 
 func init() {
-	http.HandleFunc("/project/", lookupProjName)
+	http.HandleFunc("/project/", HandleProjRequest)
 }

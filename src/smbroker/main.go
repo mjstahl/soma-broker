@@ -16,9 +16,45 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"net/http"
+	"os"
+	_ "smbroker/handlers"
 )
 
+var usageText = `Usage:
+    smbroker [command] [arguments]
+
+The commands are:
+
+    port       start broker on specified port
+`
+
 func main() {
-	fmt.Println("Social Machines Broker!")
+	flag.Parse()
+
+	args := flag.Args()
+	if len(args) < 1 {
+		printBrokerUsage()		
+	}
+
+	switch args[0] {
+	case "port":
+		if len(args[1:]) > 0 {
+			StartBroker(args[1])
+		} else {
+			StartBroker("10813")
+		}
+	}
+}
+
+func StartBroker(port string) {
+	portStr := fmt.Sprintf(":%s", port)
+	http.ListenAndServe(portStr, nil)
+}
+
+func printBrokerUsage() {
+	fmt.Println(usageText)
+	os.Exit(0)
 }

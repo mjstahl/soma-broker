@@ -22,10 +22,19 @@ import (
 
 const peerLen = len("/peer/")
 
-func lookupPeerID(w http.ResponseWriter, r *http.Request) {
+func HandlePeerRequest(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		// POST /peer/<runtime id>
+		// 409 Conflict - returned if a peer already exists with that id
+		// 201 Created  - returned if the id was accepted by the broker
+		//
+	default:
+		// 404 Not Found
+	}
 	fmt.Fprintf(w, "Hello peer #%s", r.URL.Path[peerLen:])
 }
 
 func init() {
-	http.HandleFunc("/peer/", lookupPeerID)
+	http.HandleFunc("/peer/", HandlePeerRequest)
 }
