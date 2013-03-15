@@ -25,7 +25,7 @@ const idLen = len("/id/")
 func HandleIDRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "POST":
-		// POST /id/<runtime id>
+		// POST /id/<runtime id> - called on disco console to get a runtime id
 		// 409 Conflict - returned if a peer already exists with that id
 		// 201 Created  - returned if the id was accepted by the broker
 		//
