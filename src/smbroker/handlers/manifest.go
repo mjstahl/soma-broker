@@ -20,21 +20,21 @@ import (
 	"fmt"
 )
 
-const peerLen = len("/peer/")
+const manLen = len("/m/")
 
-func HandlePeerRequest(w http.ResponseWriter, r *http.Request) {
+func HandleManifestRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
-	case "POST":
-		// POST /peer/<runtime id>
-		// 409 Conflict - returned if a peer already exists with that id
-		// 201 Created  - returned if the id was accepted by the broker
+	case "GET":
+		// GET /p/<project name> (body will contain JSON text)
+		// 200 OK - available, return with json body
+		// 404 Not Found  - if the project doesn't exist
 		//
+		fmt.Fprintf(w, "Received POST request. This should return a 409 on failure, or a 201 on success.")
 	default:
-		// 404 Not Found
+        http.Error(w, "Method Not Allowed", 405)
 	}
-	fmt.Fprintf(w, "Hello peer #%s", r.URL.Path[peerLen:])
 }
 
 func init() {
-	http.HandleFunc("/peer/", HandlePeerRequest)
+	http.HandleFunc("/m/", HandleManifestRequest)
 }

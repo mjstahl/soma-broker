@@ -13,48 +13,29 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package handlers
 
 import (
-	"flag"
-	"fmt"
 	"net/http"
-	"os"
-    _ "smbroker/handlers"
+	"fmt"
 )
 
-var usageText = `Usage:
-    smbroker [command] [arguments]
+const idLen = len("/id/")
 
-The commands are:
+func HandleIDRequest(w http.ResponseWriter, r *http.Request) {
+	switch r.Method {
+	case "POST":
+		// POST /id/<runtime id>
+		// 409 Conflict - returned if a peer already exists with that id
+		// 201 Created  - returned if the id was accepted by the broker
+		//
+	default:
+        http.Error(w, "Method Not Allowed", 405)
+    }
 
-    port       start broker on specified port
-`
-
-func main() {
-	flag.Parse()
-
-	args := flag.Args()
-	if len(args) < 1 {
-		printBrokerUsage()		
-	}
-
-	switch args[0] {
-	case "port":
-		if len(args[1:]) > 0 {
-			StartBroker(args[1])
-		} else {
-			StartBroker("10813")
-		}
-	}
+	fmt.Fprintf(w, "Hello peer #%s", r.URL.Path[peerLen:])
 }
 
-func StartBroker(port string) {
-	portStr := fmt.Sprintf(":%s", port)
-	http.ListenAndServe(portStr, nil)
-}
-
-func printBrokerUsage() {
-	fmt.Println(usageText)
-	os.Exit(0)
+func init() {
+	http.HandleFunc("/id/", HandleIDRequest)
 }
