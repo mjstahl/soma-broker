@@ -20,7 +20,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
-    _ "smbroker/handlers"
+	_ "smbroker/handlers"
 )
 
 var usageText = `Usage:
@@ -36,7 +36,7 @@ func main() {
 
 	args := flag.Args()
 	if len(args) < 1 {
-		printBrokerUsage()		
+		printBrokerUsage()
 	}
 
 	switch args[0] {

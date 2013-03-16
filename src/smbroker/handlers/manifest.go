@@ -16,8 +16,8 @@
 package handlers
 
 import (
-	"net/http"
 	"fmt"
+	"net/http"
 )
 
 const manLen = len("/m/")
@@ -31,7 +31,7 @@ func HandleManifestRequest(w http.ResponseWriter, r *http.Request) {
 		//
 		fmt.Fprintf(w, "Received POST request. This should return a 409 on failure, or a 201 on success.")
 	default:
-        http.Error(w, "Method Not Allowed", 405)
+		http.Error(w, "Method Not Allowed", 405)
 	}
 }
 

@@ -16,8 +16,9 @@
 package handlers
 
 import (
-	"net/http"
 	"fmt"
+	"io/ioutil"
+	"net/http"
 )
 
 const projLen = len("/p/")
@@ -29,9 +30,18 @@ func HandleProjectRequest(w http.ResponseWriter, r *http.Request) {
 		// 409 Conflict - if the project name already exists (only 1 project by name right now)
 		// 201 Created  - if the project name and body was accepted by the broker
 		//
-		fmt.Fprintf(w, "Received POST request. This should return a 409 on failure, or a 201 on success.")
+
+		fmt.Printf("Received POST request from %s\n", r.RemoteAddr)
+		fmt.Printf("Request Body:\n")
+
+		body, _ := ioutil.ReadAll(r.Body)
+		defer r.Body.Close()
+		fmt.Printf("%s\n", body)
+
+		w.WriteHeader(http.StatusCreated)
+		//w.WriteHeader(http.StatusConflict)
 	default:
-        http.Error(w, "Method Not Allowed", 405)
+		http.Error(w, "Method Not Allowed", 405)
 	}
 }
 
