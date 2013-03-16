@@ -15,6 +15,10 @@
 
 package data
 
+import (
+	"sync"
+)
+
 type Project struct {
 	Name string
 	Peers []Peer
@@ -27,10 +31,19 @@ type Peer struct {
 	ID uint64
 }
 
-var projects map[string]Project
+var Store *store
+
+type store struct {
+	sync.Mutex
+
+	Projects map[string]Project
+}
 
 func BrokerHasProject(proj Project) bool {
-	if _, ok := projects[proj.Name]; ok {
+	Store.Lock()
+	defer Store.Unlock()
+
+	if _, ok := Store.Projects[proj.Name]; ok {
 		return true
 	}
 
@@ -38,9 +51,12 @@ func BrokerHasProject(proj Project) bool {
 }
 
 func StoreProject(proj Project) {
-	projects[proj.Name] = proj
+	Store.Lock()
+	defer Store.Unlock()
+
+	Store.Projects[proj.Name] = proj
 }
 
 func init() {
-	projects = map[string]Project{}
+	Store = &store{Projects: map[string]Project{}}
 }
