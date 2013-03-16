@@ -13,51 +13,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package data
 
-import (
-	"flag"
-	"fmt"
-	"log"
-	"net/http"
-	"os"
-	_ "smbroker/handlers"
-)
-
-var usageText = `Usage:
-    smbroker [command] [arguments]
-
-The commands are:
-
-    port       start broker on specified port
-`
-
-func main() {
-	flag.Parse()
-
-	args := flag.Args()
-	if len(args) < 1 {
-		printBrokerUsage()
-	}
-
-	switch args[0] {
-	case "port":
-		if len(args[1:]) > 0 {
-			StartBroker(args[1])
-		} else {
-			StartBroker("10813")
-		}
-	}
+type Project struct {
+	Name string
+	Peers []Peer
+	Objects []Object
 }
 
-func StartBroker(port string) {
-	portStr := fmt.Sprintf(":%s", port)
-
-	log.Printf("Starting Social Machines broker on port %s\n", port)
-	log.Fatal(http.ListenAndServe(portStr, nil))
+type Peer struct {
+	Addr string
+	Port int
+	ID uint64
 }
 
-func printBrokerUsage() {
-	fmt.Println(usageText)
-	os.Exit(0)
+var projects map[string]Project
+
+func BrokerHasProject(proj Project) bool {
+	if _, ok := projects[proj.Name]; ok {
+		return true
+	}
+
+	return false
+}
+
+func StoreProject(proj Project) {
+	projects[proj.Name] = proj
+}
+
+func init() {
+	projects = map[string]Project{}
 }

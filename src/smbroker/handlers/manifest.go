@@ -16,20 +16,19 @@
 package handlers
 
 import (
-	"fmt"
 	"net/http"
 )
-
-const manLen = len("/m/")
 
 func HandleManifestRequest(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case "GET":
-		// GET /p/<project name> (body will contain JSON text)
-		// 200 OK - available, return with json body
-		// 404 Not Found  - if the project doesn't exist
+		// GET /m/<project name> (body will contain JSON text)
+		// 200 OK - available, return json body for project
+		// 404 Not Found  - if no peers are hosting this project
 		//
-		fmt.Fprintf(w, "Received POST request. This should return a 409 on failure, or a 201 on success.")
+	case "HEAD":
+		// HEAD /m/<project name>
+		// 404 Not Found - if the project doesn't exist
 	default:
 		http.Error(w, "Method Not Allowed", 405)
 	}

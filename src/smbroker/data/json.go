@@ -13,51 +13,34 @@
 // You should have received a copy of the GNU Affero General Public License
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-package main
+package data
 
 import (
-	"flag"
+	"encoding/json"
 	"fmt"
-	"log"
-	"net/http"
-	"os"
-	_ "smbroker/handlers"
 )
 
-var usageText = `Usage:
-    smbroker [command] [arguments]
-
-The commands are:
-
-    port       start broker on specified port
-`
-
-func main() {
-	flag.Parse()
-
-	args := flag.Args()
-	if len(args) < 1 {
-		printBrokerUsage()
-	}
-
-	switch args[0] {
-	case "port":
-		if len(args[1:]) > 0 {
-			StartBroker(args[1])
-		} else {
-			StartBroker("10813")
-		}
-	}
+type JsonProject struct {
+	Name    string
+	Port    int
+	RID     uint64
+	Objects []Object
 }
 
-func StartBroker(port string) {
-	portStr := fmt.Sprintf(":%s", port)
-
-	log.Printf("Starting Social Machines broker on port %s\n", port)
-	log.Fatal(http.ListenAndServe(portStr, nil))
+type Object struct {
+	Name      string
+	OID       uint64
+	Behaviors map[string]uint64
 }
 
-func printBrokerUsage() {
-	fmt.Println(usageText)
-	os.Exit(0)
+func DecodeProjectFrom(addr string, body []byte) Project {
+	var proj JsonProject
+	err := json.Unmarshal(body, &proj)
+	if err != nil {
+		fmt.Println("project: decode error: ", err)
+	}
+
+	peer := Peer{Addr: addr, Port: proj.Port, ID: proj.RID}
+	project := Project{Name: proj.Name, Peers: []Peer{peer}, Objects: proj.Objects}
+	return project
 }

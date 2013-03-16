@@ -16,33 +16,36 @@
 package handlers
 
 import (
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
+	"smbroker/data"
 )
 
-const projLen = len("/p/")
-
 func HandleProjectRequest(w http.ResponseWriter, r *http.Request) {
+	status := 0
 	switch r.Method {
 	case "POST":
-		// POST /p/<project name> (body will contain JSON text)
-		// 409 Conflict - if the project name already exists (only 1 project by name right now)
-		// 201 Created  - if the project name and body was accepted by the broker
-		//
-
-		fmt.Printf("Received POST request from %s\n", r.RemoteAddr)
-		fmt.Printf("Request Body:\n")
-
 		body, _ := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
-		fmt.Printf("%s\n", body)
 
-		w.WriteHeader(http.StatusCreated)
-		//w.WriteHeader(http.StatusConflict)
+		proj := data.DecodeProjectFrom(r.RemoteAddr, body)
+		found := data.BrokerHasProject(proj)
+		if found {
+			status = http.StatusConflict
+			w.WriteHeader(status)
+		} else {
+			data.StoreProject(proj)
+
+			status = http.StatusCreated
+			w.WriteHeader(status)
+		}
 	default:
+		status = http.StatusMethodNotAllowed
 		http.Error(w, "Method Not Allowed", 405)
 	}
+
+	log.Printf("%s %s => %d %s", r.Method, r.URL, status, http.StatusText(status))
 }
 
 func init() {
