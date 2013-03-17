@@ -16,22 +16,36 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
+	"path/filepath"
+	"smbroker/data"
 )
 
 func HandleManifestRequest(w http.ResponseWriter, r *http.Request) {
+	var status int
+
+	projName := filepath.Base(r.URL.String())
 	switch r.Method {
 	case "GET":
-		// GET /m/<project name> (body will contain JSON text)
-		// 200 OK - available, return json body for project
-		// 404 Not Found  - if no peers are hosting this project
-		//
+		if data.BrokerHasProject(projName) {
+			status = http.StatusOK
+			// write project to body
+		} else {
+			status = http.StatusNotFound
+		}
 	case "HEAD":
-		// HEAD /m/<project name>
-		// 404 Not Found - if the project doesn't exist
+		if data.BrokerHasProject(projName) {
+			status = http.StatusOK
+		} else {
+			status = http.StatusNotFound
+		}
 	default:
-		http.Error(w, "Method Not Allowed", 405)
+		status = http.StatusMethodNotAllowed
 	}
+
+	w.WriteHeader(status)
+	log.Printf("%s %s => %d %s", r.Method, r.URL, status, http.StatusText(status))
 }
 
 func init() {

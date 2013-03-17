@@ -23,28 +23,26 @@ import (
 )
 
 func HandleProjectRequest(w http.ResponseWriter, r *http.Request) {
-	status := 0
+	var status int
+
 	switch r.Method {
 	case "POST":
 		body, _ := ioutil.ReadAll(r.Body)
 		defer r.Body.Close()
 
 		proj := data.DecodeProjectFrom(r.RemoteAddr, body)
-		found := data.BrokerHasProject(proj)
+		found := data.BrokerHasProject(proj.Name)
 		if found {
 			status = http.StatusConflict
-			w.WriteHeader(status)
 		} else {
 			data.StoreProject(proj)
-
 			status = http.StatusCreated
-			w.WriteHeader(status)
 		}
 	default:
 		status = http.StatusMethodNotAllowed
-		http.Error(w, "Method Not Allowed", 405)
 	}
 
+	w.WriteHeader(status)
 	log.Printf("%s %s => %d %s", r.Method, r.URL, status, http.StatusText(status))
 }
 
