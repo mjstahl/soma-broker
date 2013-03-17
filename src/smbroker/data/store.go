@@ -20,15 +20,15 @@ import (
 )
 
 type Project struct {
-	Name string
-	Peers []Peer
+	Name    string
+	Peers   []Peer
 	Objects []Object
 }
 
 type Peer struct {
 	Addr string
 	Port int
-	ID uint64
+	ID   uint64
 }
 
 var Store *store
@@ -39,11 +39,11 @@ type store struct {
 	Projects map[string]Project
 }
 
-func BrokerHasProject(proj Project) bool {
+func BrokerHasProject(name string) bool {
 	Store.Lock()
 	defer Store.Unlock()
 
-	if _, ok := Store.Projects[proj.Name]; ok {
+	if _, ok := Store.Projects[name]; ok {
 		return true
 	}
 
