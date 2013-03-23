@@ -57,6 +57,13 @@ func StoreProject(proj Project) {
 	Store.Projects[proj.Name] = proj
 }
 
+func GetProject(name string) Project {
+	Store.Lock()
+	defer Store.Unlock()
+
+	return Store.Projects[name]
+}
+
 func init() {
 	Store = &store{Projects: map[string]Project{}}
 }

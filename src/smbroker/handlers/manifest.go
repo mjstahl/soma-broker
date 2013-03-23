@@ -27,24 +27,24 @@ func HandleManifestRequest(w http.ResponseWriter, r *http.Request) {
 
 	projName := filepath.Base(r.URL.String())
 	switch r.Method {
-	case "GET":
-		if data.BrokerHasProject(projName) {
-			status = http.StatusOK
-			// write project to body
-		} else {
-			status = http.StatusNotFound
-		}
 	case "HEAD":
 		if data.BrokerHasProject(projName) {
 			status = http.StatusOK
+			w.WriteHeader(status)
+		}
+	case "GET":
+		if data.BrokerHasProject(projName) {
+			bytes := data.EncodeProject(projName)
+			status = http.StatusOK
+			w.Write(bytes)
 		} else {
 			status = http.StatusNotFound
+			w.WriteHeader(status)
 		}
 	default:
 		status = http.StatusMethodNotAllowed
 	}
 
-	w.WriteHeader(status)
 	log.Printf("%s %s => %d %s", r.Method, r.URL, status, http.StatusText(status))
 }
 

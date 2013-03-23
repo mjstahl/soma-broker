@@ -18,6 +18,7 @@ package data
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 )
 
 type JsonProject struct {
@@ -40,7 +41,19 @@ func DecodeProjectFrom(addr string, body []byte) Project {
 		fmt.Println("project: decode error: ", err)
 	}
 
-	peer := Peer{Addr: addr, Port: proj.Port, ID: proj.RID}
+	address := strings.Split(addr, ":")
+	peer := Peer{Addr: address[0], Port: proj.Port, ID: proj.RID}
 	project := Project{Name: proj.Name, Peers: []Peer{peer}, Objects: proj.Objects}
 	return project
+}
+
+func EncodeProject(name string) []byte {
+	proj := GetProject(name)
+
+	bytes, err := json.Marshal(proj)
+	if err != nil {
+		fmt.Println("project: encode err: ", err)
+	}
+
+	return bytes
 }
